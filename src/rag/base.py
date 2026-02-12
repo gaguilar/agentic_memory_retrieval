@@ -44,7 +44,7 @@ class Memory:
     
     def format_for_prompt(self) -> str:
         """Format this memory for inclusion in a prompt."""
-        timestamp_str = self.timestamp.strftime("%Y-%m-%d")
+        timestamp_str = self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
         return f"[{timestamp_str}] ({self.memory_type}) {self.text}"
 
 

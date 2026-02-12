@@ -1,0 +1,25 @@
+# Core dependencies
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+python-dotenv>=1.0.0
+
+# LLM Providers
+openai>=1.0.0
+anthropic>=0.18.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# Token counting
+tiktoken>=0.5.0
+
+# CLI utilities
+rich>=13.0.0
+
+# Embeddings (for tag similarity in memory consolidation)
+sentence-transformers>=2.3.0
+numpy>=1.24.0
+
+# Graph visualization
+networkx>=3.0
+pyvis>=0.3.0

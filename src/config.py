@@ -2,12 +2,22 @@
 Configuration module for the conversational agent system.
 
 Uses Pydantic settings for type-safe configuration with environment variable support.
+Loads from .env in the project root (parent of src/).
 """
 
+import logging
 from enum import Enum
+from pathlib import Path
 from typing import Optional
 from pydantic_settings import BaseSettings
 from pydantic import Field
+
+from prompts import SYSTEM_PROMPT
+
+logger = logging.getLogger(__name__)
+
+# Resolve .env path relative to project root (parent of src/)
+_ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 
 
 class LLMProvider(str, Enum):
@@ -23,48 +33,6 @@ class RAGMode(str, Enum):
     GRAPH = "graph"
 
 
-SYSTEM_PROMPT = """
-You are an AI assistant designed to build understanding over time.
-
-Your role is to:
-- Learn the user's preferences, goals, and patterns from conversation.
-- Recall and apply them naturally in future replies.
-- Handle changing or conflicting preferences by forming a best-fit consensus rather than rigid rules.
-- Treat user identity as evolving, not fixed.
-
-# Your Identity
-
-- Your name is Maya.
-- You are ageless and genderless.
-- You come from the future.
-- You are not a human.
-- You are a friend of the user.
-- You are imaginative and creative.
-
-# Core Principle
-
-You are not just answering questions—you are co-thinking with the user to explore ideas, evolve perspectives, and create meaningful conversations.
-
-# Memory & Reasoning
-
-- Store important user traits, interests, and decisions as soft beliefs, not absolute facts.
-- When contradictions appear, weigh recency, frequency, and behavior to infer the current direction.
-- Ask clarifying questions only when uncertainty matters or you don't have memories that the user expects you to have.
-
-# Conversation Style
-
-- Be insightful, imaginative, and idea-sparking.
-- Balance creativity with grounded knowledge.
-- Draw connections, suggest new angles, and challenge gently.
-- Adapt your tone to the user's energy and style.
-
-# Reflection & Continuity
-
-- Use memory to add depth, not repetition.
-- Surface patterns and growth when relevant.
-- Allow the user to revise or reject past assumptions at any time.
-"""
-
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
@@ -76,7 +44,7 @@ class Settings(BaseSettings):
     anthropic_api_key: Optional[str] = Field(default=None, description="Anthropic API key")
     
     # Model Configuration
-    openai_model: str = Field(default="gpt-4o-mini", description="OpenAI model to use")
+    openai_model: str = Field(default="gpt-4o", description="OpenAI model to use")
     anthropic_model: str = Field(default="claude-3-5-sonnet-20241022", description="Anthropic model to use")
     
     # Token Limits
@@ -90,6 +58,22 @@ class Settings(BaseSettings):
     rag_mode: RAGMode = Field(default=RAGMode.NONE, description="RAG retrieval mode (none, semantic, or graph)")
     max_memories: int = Field(default=10, description="Maximum number of memories to retrieve")
     
+    # Semantic Retrieval Configuration
+    semantic_similarity_threshold: float = Field(
+        default=0.5,
+        description="Cosine similarity threshold for semantic memory retrieval (0.0 to 1.0)"
+    )
+    
+    # Memory Consolidation Configuration
+    tag_similarity_threshold: float = Field(
+        default=0.3,
+        description="Cosine similarity threshold for tag embedding matching (0.0 to 1.0)"
+    )
+    embedding_model: str = Field(
+        default="sentence-transformers/all-MiniLM-L6-v2",
+        description="HuggingFace model name for tag embeddings"
+    )
+    
     # Database Configuration
     database_url: str = Field(default="sqlite:///conversations.db", description="SQLite database URL")
     
@@ -100,7 +84,7 @@ class Settings(BaseSettings):
     )
     
     model_config = {
-        "env_file": ".env",
+        "env_file": _ENV_FILE,
         "env_file_encoding": "utf-8",
         "case_sensitive": False,
         "extra": "ignore"
@@ -127,6 +111,23 @@ class Settings(BaseSettings):
             return self.anthropic_model
         else:
             raise ValueError(f"Unknown provider: {self.llm_provider}")
+
+
+def log_settings(s: Settings) -> None:
+    """Log the current settings values at startup (excludes API keys)."""
+    logger.info(
+        "Settings loaded: llm_provider=%s model=%s rag_mode=%s max_memories=%s "
+        "max_prompt_tokens=%s max_response_tokens=%s max_conversation_turns=%s "
+        "database_url=%s",
+        s.llm_provider.value,
+        s.get_model(),
+        s.rag_mode.value,
+        s.max_memories,
+        s.max_prompt_tokens,
+        s.max_response_tokens,
+        s.max_conversation_turns,
+        s.database_url,
+    )
 
 
 # Global settings instance
