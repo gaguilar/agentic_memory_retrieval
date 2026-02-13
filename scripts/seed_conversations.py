@@ -19,12 +19,12 @@ import os
 from datetime import datetime
 from typing import List, Optional
 
-from src.utils.print_artifacts import print_active_memories, print_memories, print_rag_queries
-
 # Add src to path for imports (run from project root)
 _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _src_path = os.path.join(_project_root, "src")
 sys.path.insert(0, _src_path)
+
+from utils.print_artifacts import print_active_memories, print_memories, print_rag_queries
 
 logging.basicConfig(
     level=logging.INFO,
