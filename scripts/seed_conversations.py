@@ -539,7 +539,7 @@ def main():
         with suppress_verbose_extraction_output():
             extracted = manager.end_conversation()
         console.print(Text(f"  → extracted {len(extracted)} memories", style="magenta bold"))
-        print_memories(extracted)
+        print_memories(manager)
         print_created_edges(manager)
         console.print()
 

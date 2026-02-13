@@ -93,8 +93,8 @@ def print_created_edges(manager: ConversationManager):
     lines = []
     for e in edges:
         lines.append(f"[bold cyan]Edge:[/bold cyan] {e['label']}")
-        lines.append(f"[bold cyan]Source: {e['source_id']}[/bold cyan] ({e.get['source_type']}): {e['source_statement']}")
-        lines.append(f"[bold cyan]Target: {e['target_id']}[/bold cyan] ({e.get['target_type']}): {e['target_statement']}")
+        lines.append(f"[bold cyan]Source: {e['source_id']}[/bold cyan] ({e.get('source_type')}): {e['source_statement']}")
+        lines.append(f"[bold cyan]Target: {e['target_id']}[/bold cyan] ({e.get('target_type')}): {e['target_statement']}")
         lines.append(f"[bold cyan]Reason:[/bold cyan] {e['reasoning']}")
         lines.append("")
 
